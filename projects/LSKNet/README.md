@@ -23,8 +23,8 @@ conda create --name mmrotate python=3.8 -y
 conda activate mmrotate
 # pip install torch==1.12.1+cu116 torchvision==0.13.1+cu116 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu116
 pip install -U openmim
-mim install "mmcv>=2.0.0rc3"
-mim install 'mmdet>=3.0.0rc2'
+mim install mmcv
+mim install mmdet
 git clone https://github.com/luchaoshi45/LSKN.git
 cd LSKN
 pip install -v -e .

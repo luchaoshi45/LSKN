@@ -24,8 +24,3 @@ train_dataloader = dict(
     num_workers=2,
     dataset=dict(
         pipeline=train_pipeline))
-
-model = dict(
-    backbone=dict(
-        norm_cfg=dict(type='BN', requires_grad=True)),
-)

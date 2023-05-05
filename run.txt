@@ -4,8 +4,10 @@ git clone https://github.com/luchaoshi45/LSKN.git
 cd LSKN;chmod -R 777 *;pip install -v -e .
 
 
-whereis pythontools/dist_train.sh configs/lsknet/lsk_t_fpn_1x_dota_le90.py 2
-tools/dist_train.sh configs/imp/kfiou_ln_focalLoss_lsk_t_fpn_1x_dota_le90.py 2
+python tools/dist_train.sh configs/lsknet/lsk_t_fpn_1x_dota_le90.py 2
+tools/dist_train.sh projects/LSKNet/configs/imp_lsk_t_fpn_1x_dota_le90.py 2
+tools/dist_train.sh projects/LSKNet/configs/lsk_t_fpn_1x_dota_le90.py 2
+
 python tools/test.py configs/lsknet/lsk_t_fpn_1x_dota_le90.py ../../model/epoch_12.pth --show-dir ../../show/
 python tools/test.py configs/lsknet/lsk_t_fpn_1x_dota_le90.py ../../model/epoch_12.pth --format-only --eval-options submission_dir="task1"
 
