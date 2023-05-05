@@ -21,6 +21,6 @@ train_pipeline = [
 ]
 train_dataloader = dict(
     batch_size=2,
-    num_workers=2,
+    num_workers=8,
     dataset=dict(
         pipeline=train_pipeline))
