@@ -1,0 +1,34 @@
+{
+    // 使用 IntelliSense 了解相关属性。 
+    // 悬停以查看现有属性的描述。
+    // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal",
+            "justMyCode": true,
+            "args":[
+                //"configs",
+                //"configs/imp/kfiou_ln_lsk_s_fpn_3x_hrsc_le90.py",
+                "projects/LSKNet/configs/imp_lsk_t_fpn_1x_dota_le90.py",
+
+                //"configs/gwd/rotated_retinanet_obb_gwd_r50_fpn_1x_dota_le90.py",
+
+                //"configs/lsknet/lsk_t_fpn_1x_dota_le90.py",
+                /*
+                "configs/lsknet/lsk_t_fpn_1x_dota_le90.py",
+                "../../model/epoch_12.pth",
+                "--format-only",
+                "--eval-options","submission_dir=\"task1\"",
+                */
+                //"configs/lsknet/lsk_s_fpn_3x_hrsc_le90.py",
+                //"../../model/lsk_s_fpn_3x_hrsc_le90_20230205-4a4a39ce.pth",
+                //"--eval","mAP"
+            ]
+        }
+    ]
+}

@@ -1,0 +1,4 @@
+docs/
+mmrotate.egg-info/
+tests/
+work_dirs/

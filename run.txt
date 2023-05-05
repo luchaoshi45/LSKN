@@ -1,0 +1,19 @@
+cd gemini/code
+
+git clone https://github.com/luchaoshi45/LSKN.git
+cd LSKN;chmod -R 777 *;pip install -v -e .
+
+
+whereis pythontools/dist_train.sh configs/lsknet/lsk_t_fpn_1x_dota_le90.py 2
+tools/dist_train.sh configs/imp/kfiou_ln_focalLoss_lsk_t_fpn_1x_dota_le90.py 2
+python tools/test.py configs/lsknet/lsk_t_fpn_1x_dota_le90.py ../../model/epoch_12.pth --show-dir ../../show/
+python tools/test.py configs/lsknet/lsk_t_fpn_1x_dota_le90.py ../../model/epoch_12.pth --format-only --eval-options submission_dir="task1"
+
+tools/dist_train.sh configs/lsknet/lsk_s_fpn_3x_hrsc_le90.py 2
+python tools/test.py configs/lsknet/lsk_s_fpn_3x_hrsc_le90.py lsk_s_fpn_3x_hrsc_le90_20230205-4a4a39ce.pth --eval mAP
+
+git add .;git commit -m '1';git push
+
+AssertionError: Please specify at least one operation (save/eval/format/show the results / save the results) 
+with the argument 
+"--out", "--eval", "--format-only", "--show" or "--show-dir
