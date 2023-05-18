@@ -1,5 +1,5 @@
 _base_ = [
-    'lsk_t_fpn_1x_dota_le90.py'
+    'aug_lsk_t_fpn_1x_dota_le90.py'
 ]
 
 angle_version = 'le90'

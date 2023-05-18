@@ -153,3 +153,88 @@ optim_wrapper = dict(
 train_cfg = dict(
     val_interval=3,  # 设置val间隔
     )
+
+
+img_scale = (1024, 1024)  # width, height
+# Cached images number in mosaic
+mosaic_max_cached_images = 40
+# Number of cached images in mixup
+mixup_max_cached_images = 20
+max_epochs = 12  # Maximum training epochs
+# Change train_pipeline for final 2 epochs (stage 2)
+num_epochs_stage2 = 2
+
+
+train_pipeline = [
+    dict(type='mmdet.LoadImageFromFile', backend_args=None),
+    dict(type='mmdet.LoadAnnotations', with_bbox=True, box_type='qbox'),
+    dict(type='ConvertBoxType', box_type_mapping=dict(gt_bboxes='rbox')),
+    dict(type='mmdet.Resize', scale=img_scale, keep_ratio=True),
+
+    dict(
+        type='mmdet.RandomFlip',
+        prob=0.75,
+        direction=['horizontal', 'vertical', 'diagonal']),
+
+    dict(
+        type='RandomRotate',
+        prob=0.5,
+        angle_range=180,
+        rect_obj_labels=[9, 11]),
+
+    dict(type='mmdet.Pad', size=img_scale, pad_val=dict(img=(114, 114, 114))),
+    dict(type='mmdet.PackDetInputs')
+]
+
+train_pipeline2 = [
+    dict(type='mmdet.LoadImageFromFile', backend_args=None),
+    dict(type='mmdet.LoadAnnotations', with_bbox=True, box_type='qbox'),
+    dict(type='ConvertBoxType', box_type_mapping=dict(gt_bboxes='rbox')),
+    dict(type='mmdet.Resize', scale=img_scale, keep_ratio=True),
+    # add aug
+    dict(
+        type='mmdet.YOLOXHSVRandomAug',
+        hue_delta=5,
+        saturation_delta=30,
+        value_delta=30
+    ),
+    
+    dict(
+        type='mmdet.RandomFlip',
+        prob=0.75,
+        direction=['horizontal', 'vertical', 'diagonal']),
+
+    dict(
+        type='RandomRotate',
+        prob=0.5,
+        angle_range=180,
+        rect_obj_labels=[9, 11]),
+    #dict(type='mmdet.RandomCrop', crop_size=img_scale),
+
+    dict(
+        type='mmdet.CachedMosaic',
+        img_scale=img_scale,
+        max_cached_images=mosaic_max_cached_images,
+        pad_val=114.0),
+    dict(type='mmdet.Pad', size=img_scale, pad_val=dict(img=(114, 114, 114))),
+    dict(
+        type='mmdet.CachedMixUp',
+        img_scale=img_scale,
+        max_cached_images=mixup_max_cached_images,
+        pad_val=114.0),
+
+    dict(type='mmdet.PackDetInputs')
+]
+
+train_dataloader = dict(
+    batch_size=1,
+    num_workers=8,
+    dataset=dict(
+        pipeline=train_pipeline2))
+
+custom_hooks = [
+    dict(
+        type='mmdet.PipelineSwitchHook',
+        switch_epoch=max_epochs - num_epochs_stage2,
+        switch_pipeline=train_pipeline2)
+]
