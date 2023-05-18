@@ -23,7 +23,8 @@ train_pipeline = [
     dict(
         type='RandomRotate',
         prob=0.5,
-        angle_range=180),
+        angle_range=180,
+        rect_obj_labels=[9, 11]),
     dict(type='mmdet.PackDetInputs')
 ]
 

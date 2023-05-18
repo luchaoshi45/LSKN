@@ -13,6 +13,7 @@ python tools/test.py configs/lsknet/lsk_t_fpn_1x_dota_le90.py ../../model/epoch_
 tools/dist_train.sh configs/lsknet/lsk_s_fpn_3x_hrsc_le90.py 2
 python tools/test.py configs/lsknet/lsk_s_fpn_3x_hrsc_le90.py lsk_s_fpn_3x_hrsc_le90_20230205-4a4a39ce.pth --eval mAP
 
+git rm -r --cached .
 git add .;git commit -m '1';git push
 
 AssertionError: Please specify at least one operation (save/eval/format/show the results / save the results) 
