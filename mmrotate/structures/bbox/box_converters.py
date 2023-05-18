@@ -105,7 +105,14 @@ def qbox2rbox(boxes: Tensor) -> Tensor:
         Tensor: Rotated box tensor with shape of (..., 5).
     """
     # TODO support tensor-based minAreaRect later
+    
     original_shape = boxes.shape[:-1]
+    '''
+    if boxes.requires_grad:
+        points = boxes.detach().cpu().numpy().reshape(-1, 4, 2)
+    else:
+        points = boxes.cpu().numpy().reshape(-1, 4, 2)'''
+
     points = boxes.cpu().numpy().reshape(-1, 4, 2)
     rboxes = []
     for pts in points:

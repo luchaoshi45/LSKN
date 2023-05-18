@@ -15,8 +15,8 @@ train_pipeline = [
     dict(
         type='RandomRotate',
         prob=0.5,
-        angle_range=180,
-        rect_obj_labels=[9, 11]),
+        angle_range=180,),
+        #rect_obj_labels=[9, 11]),
     dict(type='mmdet.PackDetInputs')
 ]
 val_pipeline = [
@@ -39,8 +39,8 @@ test_pipeline = [
                    'scale_factor'))
 ]
 train_dataloader = dict(
-    batch_size=4,
-    num_workers=8,
+    batch_size=2,
+    num_workers=2,
     persistent_workers=True,
     sampler=dict(type='DefaultSampler', shuffle=True),
     batch_sampler=None,
@@ -52,8 +52,8 @@ train_dataloader = dict(
         filter_cfg=dict(filter_empty_gt=True),
         pipeline=train_pipeline))
 val_dataloader = dict(
-    batch_size=4,
-    num_workers=8,
+    batch_size=1,
+    num_workers=2,
     persistent_workers=True,
     drop_last=False,
     sampler=dict(type='DefaultSampler', shuffle=False),

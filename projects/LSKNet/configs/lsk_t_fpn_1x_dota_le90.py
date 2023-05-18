@@ -29,7 +29,6 @@ backbones/lsk_t_backbone-2ef8a593.pth'),
         norm_cfg=dict(type='SyncBN', requires_grad=True)),
     neck=dict(
         type='mmdet.FPN',
-        #in_channels=[64, 128, 320, 512],
         in_channels=[32, 64, 160, 256],
         out_channels=256,
         num_outs=5),
@@ -151,3 +150,6 @@ optim_wrapper = dict(
         betas=(0.9, 0.999),
         weight_decay=0.05))
 
+train_cfg = dict(
+    val_interval=3,  # 设置val间隔
+    )

@@ -19,9 +19,9 @@ This project is an implementation of "Large Selective Kernel Network for Remote 
 In MMRotate's root directory, run the following command to train the model:
 
 ```shell
-conda create --name mmrotate python=3.8 -y
-conda activate mmrotate
-# pip install torch==1.12.1+cu116 torchvision==0.13.1+cu116 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu116
+conda create --name mmrotate-1 python=3.8 -y
+conda activate mmrotate-1
+# pip install torch==1.12.1+cu116 torchvision==0.13.1+cu116 torchaudio==0.12.1 --extra-index-url https://download.pytorch.org/whl/cu116 --no-cache-dir
 pip install -U openmim
 mim install mmcv
 mim install mmdet
