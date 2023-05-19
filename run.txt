@@ -3,6 +3,7 @@ cd gemini/code
 git clone https://github.com/luchaoshi45/LSKN.git
 cd LSKN;chmod -R 777 *;pip install -v -e .
 
+python setup.py install
 
 tools/dist_train.sh projects/LSKNet/configs/cach_aug_lsk_t_fpn_1x_dota_le90.py 2
 

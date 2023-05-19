@@ -4,6 +4,7 @@ _base_ = [
     'mmrotate::_base_/default_runtime.py'
 ]
 
+#custom_imports = dict(imports=['projects.LSKNet.dhead','projects.LSKNet.lsknet'])
 custom_imports = dict(imports=['projects.LSKNet.lsknet'])
 
 angle_version = 'le90'
@@ -55,6 +56,8 @@ backbones/lsk_t_backbone-2ef8a593.pth'),
             loss_weight=1.0)),
     roi_head=dict(
         type='mmdet.StandardRoIHead',
+        #type='MYStandardRoIHead',
+        
         bbox_roi_extractor=dict(
             type='RotatedSingleRoIExtractor',
             roi_layer=dict(
@@ -65,8 +68,14 @@ backbones/lsk_t_backbone-2ef8a593.pth'),
             out_channels=256,
             featmap_strides=[4, 8, 16, 32]),
         bbox_head=dict(
-            type='mmdet.ConvFCBBoxHead',
+            #type='mmdet.ConvFCBBoxHead',
+            #num_shared_fcs=2,
             #type='mmdet.DoubleConvFCBBoxHead',
+            type='MYDoubleConvFCBBoxHead',
+            #type = 'MYtest',
+
+            num_convs = 2,
+            num_fcs = 2,
             predict_box_type='rbox',
             in_channels=256,
             fc_out_channels=1024,

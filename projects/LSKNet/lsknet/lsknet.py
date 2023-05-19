@@ -378,3 +378,138 @@ class DWConv(nn.Module):
     def forward(self, x):
         x = self.dwconv(x)
         return x
+
+
+@MODELS.register_module()
+class MYLSKNet(BaseModule):
+    """Large Selective Kernel Network.
+
+    A PyTorch implement of : `Large Selective Kernel Network for
+        Remote Sensing Object Detection.`
+        PDF: https://arxiv.org/pdf/2303.09030.pdf
+    Inspiration from
+    https://github.com/zcablii/Large-Selective-Kernel-Network
+    Args:
+        in_chans (int): The num of input channels. Defaults to 3.
+        embed_dims (List[int]): Embedding channels of each LSK block.
+            Defaults to [64, 128, 256, 512]
+        mlp_ratios (List[int]): Mlp ratios. Defaults to [8, 8, 4, 4]
+        drop_rate (float): Dropout rate after embedding. Defaults to 0.
+        drop_path_rate (float): Stochastic depth rate. Defaults to 0.1.
+        depths (List[int]): Number of LSK block in each stage.
+            Defaults to [3, 4, 6, 3]
+        num_stages (int): Number of stages. Defaults to 4
+        pretrained (bool): If the model weight is pretrained. Defaults to None,
+        init_cfg (dict, optional): The Config for initialization.
+            Defaults to None.
+        norm_cfg (dict): Config dict for normalization layer for all output
+            features. Defaults to None.
+    """
+
+    def __init__(self,
+                 in_chans=3,
+                 embed_dims=[64, 128, 256, 512],
+                 mlp_ratios=[8, 8, 4, 4],
+                 drop_rate=0.,
+                 drop_path_rate=0.,
+                 depths=[3, 4, 6, 3],
+                 num_stages=4,
+                 pretrained=None,
+                 init_cfg=None,
+                 norm_cfg=None):
+        super(MYLSKNet, self).__init__(init_cfg=init_cfg)
+
+        assert not (init_cfg and pretrained), \
+            'init_cfg and pretrained cannot be set at the same time'
+        if isinstance(pretrained, str):
+            warnings.warn('DeprecationWarning: pretrained is deprecated, '
+                          'please use "init_cfg" instead')
+            self.init_cfg = dict(type='Pretrained', checkpoint=pretrained)
+        elif pretrained is not None:
+            raise TypeError('pretrained must be a str or None')
+        self.depths = depths
+        self.num_stages = num_stages
+
+        dpr = [
+            x.item() for x in torch.linspace(0, drop_path_rate, sum(depths))
+        ]  # stochastic depth decay rule
+        cur = 0
+
+        for i in range(num_stages):
+            patch_embed = OverlapPatchEmbed(
+                patch_size=7 if i == 0 else 3,
+                stride=4 if i == 0 else 2,
+                in_chans=in_chans if i == 0 else embed_dims[i - 1],
+                embed_dim=embed_dims[i],
+                norm_cfg=norm_cfg)
+
+            block = nn.ModuleList([
+                Block(
+                    dim=embed_dims[i],
+                    mlp_ratio=mlp_ratios[i],
+                    drop=drop_rate,
+                    drop_path=dpr[cur + j],
+                    norm_cfg=norm_cfg) for j in range(depths[i])
+            ])
+            norm_layer = partial(nn.LayerNorm, eps=1e-6)
+            norm = norm_layer(embed_dims[i])
+            cur += depths[i]
+
+            setattr(self, f'patch_embed{i + 1}', patch_embed)
+            setattr(self, f'block{i + 1}', block)
+            setattr(self, f'norm{i + 1}', norm)
+
+    def init_weights(self):
+        print('init cfg', self.init_cfg)
+        if self.init_cfg is None:
+            for m in self.modules():
+                if isinstance(m, nn.Linear):
+                    #trunc_normal_init(m, std=.02, bias=0.)
+                    nn.init.trunc_normal_(m, std=.02)
+                elif isinstance(m, nn.LayerNorm):
+                    nn.init.constant_(m, val=1.0)
+                elif isinstance(m, nn.Conv2d):
+                    fan_out = m.kernel_size[0] * m.kernel_size[
+                        1] * m.out_channels
+                    fan_out //= m.groups
+                    nn.init.normal_(
+                        m, mean=0, std=math.sqrt(2.0 / fan_out))
+        else:
+            super(MYLSKNet, self).init_weights()
+
+    def freeze_patch_emb(self):
+        self.patch_embed1.requires_grad = False
+
+    @torch.jit.ignore
+    def no_weight_decay(self):
+        return {
+            'pos_embed1', 'pos_embed2', 'pos_embed3', 'pos_embed4', 'cls_token'
+        }
+
+    def get_classifier(self):
+        return self.head
+
+    def reset_classifier(self, num_classes, global_pool=''):
+        self.num_classes = num_classes
+        self.head = nn.Linear(
+            self.embed_dim, num_classes) if num_classes > 0 else nn.Identity()
+
+    def forward_features(self, x):
+        B = x.shape[0]
+        outs = []
+        for i in range(self.num_stages):
+            patch_embed = getattr(self, f'patch_embed{i + 1}')
+            block = getattr(self, f'block{i + 1}')
+            norm = getattr(self, f'norm{i + 1}')
+            x, H, W = patch_embed(x)
+            for blk in block:
+                x = blk(x)
+            x = x.flatten(2).transpose(1, 2)
+            x = norm(x)
+            x = x.reshape(B, H, W, -1).permute(0, 3, 1, 2).contiguous()
+            outs.append(x)
+        return outs
+
+    def forward(self, x):
+        x = self.forward_features(x)
+        return x
