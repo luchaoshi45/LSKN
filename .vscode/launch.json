@@ -12,11 +12,11 @@
             "console": "integratedTerminal",
             "justMyCode": false,
             "args":[
-                
-                "projects/LSKNet/configs/test.py",
+
+                //"projects/LSKNet/configs/test.py",
                 //"projects/LSKNet/configs/lsk_t_fpn_1x_dota_le90.py",
 
-                //"projects/LSKNet/configs/aug_lsk_t_fpn_1x_dota_le90.py",
+                "projects/LSKNet/configs/aug_lsk_t_fpn_1x_dota_le90.py",
                 //"projects/LSKNet/configs/cach_aug_lsk_t_fpn_1x_dota_le90.py",
                 
                 //"configs/gwd/rotated_retinanet_obb_gwd_r50_fpn_1x_dota_le90.py",

@@ -155,15 +155,14 @@ train_cfg = dict(
     )
 
 size = 400
+batch_size = 1
+num_epochs_stage2 = 11
 img_scale = (size, size)  # width, height
 img_scale_mix = (size//2, size//2)
 max_epochs = 12  # Maximum training epochs
 # Change train_pipeline for final 2 epochs (stage 2)
-num_epochs_stage2 = 11
-
 
 train_pipeline = [
-
     dict(type='mmdet.Resize', scale=img_scale, keep_ratio=True),
 
     dict(
@@ -181,11 +180,7 @@ train_pipeline = [
     dict(type='mmdet.PackDetInputs')
 ]
 
-
 train_pipeline2 = [
-    dict(type='mmdet.LoadImageFromFile', backend_args=None),
-    dict(type='mmdet.LoadAnnotations', with_bbox=True, box_type='qbox'),
-    dict(type='ConvertBoxType', box_type_mapping=dict(gt_bboxes='rbox')),
     dict(type='mmdet.Resize', scale=img_scale, keep_ratio=True),
     # add aug
     dict(
@@ -236,7 +231,7 @@ mix_dataset = dict(
                 dict(type='ConvertBoxType', box_type_mapping=dict(gt_bboxes='rbox')),])
 
 train_dataloader = dict(
-    batch_size=1,
+    batch_size=batch_size,
     num_workers=8,
     dataset=dict(
         _delete_=True,
