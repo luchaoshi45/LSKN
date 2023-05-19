@@ -163,7 +163,9 @@ num_epochs_stage2 = 11
 
 
 train_pipeline = [
-
+    dict(type='mmdet.LoadImageFromFile', backend_args=None),
+    dict(type='mmdet.LoadAnnotations', with_bbox=True, box_type='qbox'),
+    dict(type='ConvertBoxType', box_type_mapping=dict(gt_bboxes='rbox')),
     dict(type='mmdet.Resize', scale=img_scale, keep_ratio=True),
 
     dict(

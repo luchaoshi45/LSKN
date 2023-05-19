@@ -65,7 +65,7 @@ backbones/lsk_t_backbone-2ef8a593.pth'),
             out_channels=256,
             featmap_strides=[4, 8, 16, 32]),
         bbox_head=dict(
-            type='mmdet.Shared2FCBBoxHead',
+            type='mmdet.ConvFCBBoxHead',
             predict_box_type='rbox',
             in_channels=256,
             fc_out_channels=1024,
@@ -153,102 +153,3 @@ optim_wrapper = dict(
 train_cfg = dict(
     val_interval=3,  # 设置val间隔
     )
-
-size = 400
-img_scale = (size, size)  # width, height
-img_scale_mix = (size//2, size//2)
-max_epochs = 12  # Maximum training epochs
-# Change train_pipeline for final 2 epochs (stage 2)
-num_epochs_stage2 = 11
-
-
-train_pipeline = [
-
-    dict(type='mmdet.Resize', scale=img_scale, keep_ratio=True),
-
-    dict(
-        type='mmdet.RandomFlip',
-        prob=0.75,
-        direction=['horizontal', 'vertical', 'diagonal']),
-
-    dict(
-        type='RandomRotate',
-        prob=0.5,
-        angle_range=180,
-        rect_obj_labels=[9, 11]),
-
-    #dict(type='mmdet.Pad', size=img_scale, pad_val=dict(img=(114, 114, 114))),
-    dict(type='mmdet.PackDetInputs')
-]
-
-
-train_pipeline2 = [
-    dict(type='mmdet.LoadImageFromFile', backend_args=None),
-    dict(type='mmdet.LoadAnnotations', with_bbox=True, box_type='qbox'),
-    dict(type='ConvertBoxType', box_type_mapping=dict(gt_bboxes='rbox')),
-    dict(type='mmdet.Resize', scale=img_scale, keep_ratio=True),
-    # add aug
-    dict(
-        type='mmdet.YOLOXHSVRandomAug',
-        hue_delta=5,
-        saturation_delta=30,
-        value_delta=30
-    ),
-   
-    dict(
-        type='mmdet.RandomFlip',
-        prob=0.75,
-        direction=['horizontal', 'vertical', 'diagonal']),
-
-    dict(
-        type='RandomRotate',
-        prob=0.5,
-        angle_range=180,
-        rect_obj_labels=[9, 11]),
-    #dict(type='mmdet.RandomCrop', crop_size=img_scale),
-
-    dict(
-        type='mmdet.Mosaic',
-        img_scale=img_scale_mix,
-        #max_cached_images=mosaic_max_cached_images,
-        pad_val=114.0),
-    dict(type='mmdet.Pad', size=img_scale, pad_val=dict(img=(114, 114, 114))),
-    dict(
-        type='mmdet.MixUp',
-        img_scale=img_scale_mix,
-        #max_cached_images=mixup_max_cached_images,
-        pad_val=114.0),
-
-    dict(type='mmdet.PackDetInputs')
-]
-
-dataset_type = 'DOTADataset'
-data_root = '../../data-1/'
-mix_dataset = dict(
-            type=dataset_type,
-            data_root=data_root,
-            ann_file='trainval/trainval_annfiles/',
-            data_prefix=dict(img_path='trainval/images/'),
-            filter_cfg=dict(filter_empty_gt=True),
-            pipeline=[
-                dict(type='mmdet.LoadImageFromFile', backend_args=None),
-                dict(type='mmdet.LoadAnnotations', with_bbox=True, box_type='qbox'),
-                dict(type='ConvertBoxType', box_type_mapping=dict(gt_bboxes='rbox')),])
-
-train_dataloader = dict(
-    batch_size=1,
-    num_workers=8,
-    dataset=dict(
-        _delete_=True,
-        type='mmdet.MultiImageMixDataset',
-        dataset=mix_dataset,
-        pipeline=train_pipeline2))
-
-
-
-custom_hooks = [
-    dict(
-        type='mmdet.PipelineSwitchHook',
-        switch_epoch=max_epochs - num_epochs_stage2,
-        switch_pipeline=train_pipeline)
-]
