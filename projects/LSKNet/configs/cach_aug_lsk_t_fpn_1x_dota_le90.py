@@ -157,7 +157,7 @@ train_cfg = dict(
 
 size = 1024
 batch_size = 4
-num_epochs_stage2 = 10
+num_epochs_stage2 = 2
 img_scale = (size, size)  # width, height
 img_scale_mix = (size//2, size//2)
 # Cached images number in mosaic

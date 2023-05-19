@@ -66,6 +66,7 @@ backbones/lsk_t_backbone-2ef8a593.pth'),
             featmap_strides=[4, 8, 16, 32]),
         bbox_head=dict(
             type='mmdet.ConvFCBBoxHead',
+            #type='mmdet.DoubleConvFCBBoxHead',
             predict_box_type='rbox',
             in_channels=256,
             fc_out_channels=1024,

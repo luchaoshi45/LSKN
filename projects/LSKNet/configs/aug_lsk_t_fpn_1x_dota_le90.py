@@ -154,9 +154,9 @@ train_cfg = dict(
     val_interval=3,  # 设置val间隔
     )
 
-size = 400
-batch_size = 1
-num_epochs_stage2 = 11
+size = 1024
+batch_size = 4
+num_epochs_stage2 = 2
 img_scale = (size, size)  # width, height
 img_scale_mix = (size//2, size//2)
 max_epochs = 12  # Maximum training epochs
