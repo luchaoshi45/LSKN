@@ -157,14 +157,15 @@ train_cfg = dict(
 
 size = 1024
 batch_size = 4
-num_epochs_stage2 = 2
+num_epochs_stage2 = 10
 img_scale = (size, size)  # width, height
 img_scale_mix = (size//2, size//2)
 # Cached images number in mosaic
 mosaic_max_cached_images = 40
 # Number of cached images in mixup
 mixup_max_cached_images = 20
-max_epochs = 12  # Maximum training epochs
+max_epochs = 18  # Maximum training epochs
+milestones=[14, 17]
 # Change train_pipeline for final 2 epochs (stage 2)
 
 
@@ -219,14 +220,20 @@ train_pipeline2 = [
         type='mmdet.CachedMosaic',
         img_scale=img_scale_mix,
         max_cached_images=mosaic_max_cached_images,
-        pad_val=114.0),
-    dict(type='mmdet.Pad', size=img_scale, pad_val=dict(img=(114, 114, 114))),
+        pad_val=114.0,
+        prob=0.3, # 需要低一点 会缩写图像尺度
+        ),
+
     dict(
         type='mmdet.CachedMixUp',
-        img_scale=img_scale_mix,
+        img_scale=img_scale,
         max_cached_images=mixup_max_cached_images,
-        pad_val=114.0),
+        pad_val=114.0,
+        prob=0.5,
+        ratio_range = (0.5, 1.5)
+        ),
 
+    dict(type='mmdet.Pad', size=img_scale, pad_val=dict(img=(114, 114, 114))),
     dict(type='mmdet.PackDetInputs')
 ]
 
@@ -241,4 +248,25 @@ custom_hooks = [
         type='mmdet.PipelineSwitchHook',
         switch_epoch=max_epochs - num_epochs_stage2,
         switch_pipeline=train_pipeline)
+]
+
+
+# training schedule for 1x
+train_cfg = dict(type='EpochBasedTrainLoop', max_epochs=max_epochs, val_interval=1)
+
+# learning rate
+param_scheduler = [
+    dict(
+        type='LinearLR',
+        start_factor=1.0 / 3,
+        by_epoch=False,
+        begin=0,
+        end=500),
+    dict(
+        type='MultiStepLR',
+        begin=0,
+        end=max_epochs,
+        by_epoch=True,
+        milestones=milestones,
+        gamma=0.1)
 ]

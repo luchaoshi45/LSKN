@@ -70,8 +70,8 @@ backbones/lsk_t_backbone-2ef8a593.pth'),
         bbox_head=dict(
             #type='mmdet.ConvFCBBoxHead',
             #num_shared_fcs=2,
-            #type='mmdet.DoubleConvFCBBoxHead',
-            type='MYDoubleConvFCBBoxHead',
+            type='mmdet.DoubleConvFCBBoxHead',
+            #type='MYDoubleConvFCBBoxHead',
             #type = 'MYtest',
 
             num_convs = 2,
